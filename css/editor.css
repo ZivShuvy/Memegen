@@ -1,0 +1,145 @@
+.editor-container {
+    display: flex;
+    background-color: transparent;
+    padding: 20px;
+    background-color: #fff;
+    justify-content: center;
+    gap: 80px;
+}
+
+canvas {
+    border-radius: 30px;
+}
+
+/* CONTROL BOX */
+
+.control-box {
+    border-radius: 30px;
+    background-color: #383b42;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 50px;
+    gap: 30px;
+}
+
+/* TEXT INPUT */
+
+.edit-txt-input {
+    box-shadow: 1px 5px 0 #bbc4d1, inset 0 5px 0 #ffffff;
+    border-radius: 28px;
+    border: none;
+    background-color: #ebeef3;
+    font-family: Poppins-medium;
+    font-size: 1.5625rem;
+    color: #3d3d3d;
+    padding: 5px 15px;
+    text-align: center;
+}
+
+.edit-txt-input:focus-visible {
+    outline: none;
+}
+
+/* LINE FEATURES */
+
+.line-features-btns {
+    display: flex;
+    gap: 30px;
+}
+
+.line-features-btns button {
+    border-radius: 10px;
+    width: 57px;
+    height: 53px;
+}
+
+.next-txt {
+    box-shadow: 1px 5px 0 #048b97, inset 0 5px 0 #50bed6;
+    background-image: linear-gradient(-38deg, #66c4dc 0%, #40b1ce 50%, #0c98bb 100%);
+}
+
+.next-txt::before {
+    content: url(/img/arrows.png);
+}
+
+.add-txt {
+    box-shadow: 1px 5px 0 #015d33, inset 0 5px 0 #5dce71;
+    background-image: linear-gradient(-38deg, #42eb5c 0%, #37b34a 100%);
+}
+
+.add-txt::before {
+    content: url(/img/plus.png);
+}
+
+.delete-txt {
+    box-shadow: 1px 5px 0 #8c0606, inset 0 5px 0 #f16e5b;
+    background-image: linear-gradient(-38deg, #cf1d37 0%, #cf1d37 1%, #f05036 100%);
+}
+
+.delete-txt::before {
+    content: url(/img/delete.png);
+}
+
+/* TEXT FEATURES */
+
+.txt-features {
+    background-color: #19a59f;
+    border-radius: 15px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    grid-template-rows: auto auto;
+    gap: 25px;
+}
+
+.txt-features button, .fonts-input {
+    width: 56px;
+    height: 51px;
+    background-color: #fff;
+    box-shadow: 1px 5px 0 rgba(92, 92, 92, 0.55), inset 0 5px 0 rgba(255, 255, 255, 0.58);
+    border-radius: 10px;
+    font-family: Poppins-semibold;
+    font-size: 2rem;
+}
+
+.txt-features button span {
+    font-size: 1.2rem;
+}
+
+.align-left-btn::before {
+    content: url(/svg/align-left.svg);
+}
+
+.align-center-btn::before {
+    content: url(/svg/align-center.svg);
+}
+
+.align-right-btn::before {
+    content: url(/svg/align-right.svg);
+}
+
+.fonts-input {
+    width: 236px;
+    font-size: 1.6875rem;
+    border: none;
+    grid-column: 1/4;
+    text-transform: uppercase;
+    padding: 5px;
+}
+
+.fonts-input:focus-visible {
+    outline: none;
+}
+
+.underline-btn {
+    text-decoration: underline;
+}
+
+.align-right-btn::before {
+    content: url(/svg/align-right.svg);
+}
+
+.set-color-btn::before {
+    content: url(/svg/canvas.svg);
+}

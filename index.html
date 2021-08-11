@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/gallery.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <title>Memegen</title>
+</head>
+
+<body onload="onInit()">
+    <header>
+        <img class="logo" onclick="renderGallery()" src="img/logo.png">
+        <nav>
+            <button class="gallery-btn active" onclick="renderGallery()">Gallery</button>
+            <button class="memes-btn">Memes</button>
+            <button class="about-btn">About</button>
+        </nav>
+        </section>
+    </header>
+    <main>
+        <section class="editor-container">
+            <section class="canvas-container">
+                <canvas height="450" width="450"></canvas>
+            </section>
+            <section class="control-box">
+                <input type="text" class="txt-input">
+                <section class="txt-features-btns">
+                    <button class="next-txt"></button>
+                    <button class="add-txt"></button>
+                    <button class="delete-txt"></button>
+
+                    <div class="txt-features">
+                        <button onclick="onChangeFontSize(2)">A+</button>
+                        <button onclick="onChangeFontSize(-2)">A-</button>
+                        <button onclick="onSetAilment('left')"></button>
+                        <button onclick="onSetAilment('center')"></button>
+                        <button onclick="onSetAilment('right')"></button>
+                        <input list="fonts" name="fonts-list" class="search-bar" placeholder="Enter font">
+                        <datalist id="fonts">
+                            <option value="Impact"></option>
+                            <option value="Arial"></option>
+                            <option value="Tahoma"></option>
+                            <option value="Gisha"></option>
+                        </datalist>
+                        <button onclick="onSetUnderLine()"></button>
+                        <button onclick="onSetColor()"></button>
+                    </div>
+
+                </section>
+    </main>
+
+    <script src="js/meme-service.js"></script>
+    <script src="js/editor-controller.js"></script>
+    <script src="js/gallery-controller.js"></script>
+</body>
+
+</html>

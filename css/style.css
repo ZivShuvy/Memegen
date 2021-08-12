@@ -6,17 +6,17 @@
 
 @font-face {
     font-family: Poppins-medium;
-    src: url(./fonts/Poppins/Poppins-Medium.ttf);
+    src: url(../fonts/Poppins/Poppins-Medium.ttf);
 }
 
 @font-face {
     font-family: Poppins-light;
-    src: url(./fonts/Poppins/Poppins-Light.ttf);
+    src: url(../fonts/Poppins/Poppins-Light.ttf);
 }
 
 @font-face {
     font-family: Poppins-semibold;
-    src: url(./fonts/Poppins/Poppins-SemiBold.ttf);
+    src: url(../fonts/Poppins/Poppins-SemiBold.ttf);
 }
 
 /* BASE */
@@ -32,10 +32,14 @@ button {
     border: none;
 }
 
+h3 {
+    margin: 0;
+}
+
 /* HEADER */
 
 header {
-    height: 73px;
+    height: 10vh;
     border-radius: 37px;
     background-color: #5970c1;
     background-image: linear-gradient(-86deg, #33be6d 0%, #0c98b9 100%);
@@ -46,7 +50,7 @@ header {
 }
 
 header nav {
-    padding-inline-end: 80px;
+    margin-inline-end: 80px;
     display: flex;
     gap: 30px;
 }
@@ -57,9 +61,10 @@ header button {
     color: #fff;
     background-color: transparent;
     transition: border-radius, background-color, color .2s;
+    padding: 0px 20px;
 }
 
-header button:hover {
+header button:hover:not(.btn-menu-toggle) {
     border-radius: 20px;
     background-color: #fefefe;
     color: #21ac91;
@@ -70,12 +75,154 @@ header button:hover {
     border-radius: 20px;
     background-color: #fefefe;
     color: #21ac91;
-    padding: 0px 20px;
 }
 
 .logo {
     height: 30px;
-    padding-inline-start: 80px;
+    margin-inline-start: 80px;
     cursor: pointer;
 }
 
+.btn-menu-toggle {
+    display: none;
+    padding: 0px;
+}
+
+/* MODAL AND SCREEN */
+
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(255 255 255 / 50%);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .6s;
+}
+
+body.menu-open .screen {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.modal-open .screen {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.menu-open .search-bar {
+    pointer-events: none;
+    display: none;
+}
+
+.choose-color-modal {
+    background-color: #fff;
+    text-align: center;
+    border: 1px solid #e1e0e0;
+    width: 300px;
+    height: 300px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -260%);
+    transition: transform .6s;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    color: #21ac91;
+    visibility: hidden;
+}
+
+.choose-color-modal button {
+    border: none;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    font-family: Poppins-medium;
+    transform: background-color .2s;
+    box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    background-color: #fefefe;
+    color: #21ac91;
+    padding: 5px 25px;
+}
+
+.choose-color-modal button:hover {
+    background-color: rgb(243, 243, 243);
+}
+
+.choose-color-modal button:active {
+    position: relative;
+    top: 1px;
+}
+
+.choose-color-modal input {
+    width: 70px;
+    height: 70px;
+}
+
+.read-more-modal button:hover {
+    background-color: rgb(77, 77, 77);
+    ;
+}
+
+/* MOBILE ONLY */
+
+@media (max-width:700px) {
+    body {
+        margin: 0;
+    }
+    header {
+        border-radius: unset;
+        height: 100px;
+    }
+    .logo {
+        margin-inline-start: 30px;
+    }
+    .btn-menu-toggle {
+        display: block;
+        width: 55px;
+        height: 55px;
+        background-color: #fefefe;
+        border-radius: 100%;
+        color: #28b47f;
+        font-weight: bold;
+        font-size: 2rem;
+        margin-inline-end: 30px;
+
+    }
+    header nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        flex-direction: column;
+        min-width: 250px;
+        background-color: rgb(41 41 41 / 90%);
+        height: 100vh;
+        transform: translateX(100%);
+        transition: transform .6s;
+        margin-inline-end: 0px;
+        gap: 0px;
+    }
+    header nav button {
+        width: 100%;
+        height: 70px;
+        border-radius: unset;
+    }
+
+    .active {
+        border-radius: unset;
+    }
+
+    body.menu-open header nav {
+        transform: translateX(0);
+    }
+    header button:hover:not(.btn-menu-toggle) {
+        border-radius: unset;
+    }
+}

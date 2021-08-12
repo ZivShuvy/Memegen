@@ -1,10 +1,11 @@
 /* GALLERY  */
 
-.gallery-container {
+.gallery-container, .user-gallery-container {
     display: flex;
     flex-direction: column;
     border-radius: 10px;
     background-color: #383b42;
+    height: 85vh;
     padding: 20px;
 }
 
@@ -59,39 +60,78 @@
     background-image: linear-gradient(-86deg, #0c98b9 0%, #33be6d 100%);
 }
 
-.images-container {
+.images-container, .user-memes-container {
     padding-inline-start: 50px;
     padding-inline-end: 20px;
     padding-bottom: 20px;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 25px;
-    max-height: 500px;
     overflow-y: scroll;
 }
 
-.images-container img {
+.images-container img, .user-memes-container img {
     width: 200px;
     border-radius: 10px;
     cursor: pointer;
 }
 
-.images-container::-webkit-scrollbar {
+.images-container img:hover, .user-memes-container img:hover {
+    opacity: 0.7;
+}
+
+.images-container::-webkit-scrollbar, .user-memes-container::-webkit-scrollbar {
     width: 13px;
 }
 
-.images-container::-webkit-scrollbar-track {
+.images-container::-webkit-scrollbar-track, .user-memes-container::-webkit-scrollbar-track {
     background-color: #ffffff;
     border-radius: 7px;
 }
 
-.images-container::-webkit-scrollbar-thumb {
+.images-container::-webkit-scrollbar-thumb, .user-memes-container::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 7px;
     background-color: #22252c;
     background-image: linear-gradient(-86deg, #33be6d 0%, #0c98b9 100%);
 }
 
-.images-container::-webkit-scrollbar-thumb:hover {
+.images-container::-webkit-scrollbar-thumb:hover, .user-memes-container::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+.user-gallery-container h1 {
+    color: white;
+    text-align: center;
+}
+
+
+
+
+
+@media (max-width:700px) {
+    main {
+        margin: 10px;
+    }
+    .gallery-container {
+        height: fit-content;
+    }
+    .images-container, .user-memes-container {
+        grid-template-columns: auto;
+        overflow-y: unset;
+    }
+    .images-container img, .user-memes-container img {
+        width: 90%;
+    }
+    .gallery-bar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .search-bar {
+        width: 100%;
+    }
+    .filter-words {
+        width: 100%;
+    }
+  
 }

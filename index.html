@@ -12,50 +12,33 @@
 </head>
 
 <body onload="onInit()">
+    <div class="screen" onclick="onToggleScreen()"></div>
     <header>
         <img class="logo" onclick="renderGallery()" src="img/logo.png">
         <nav>
             <button class="gallery-btn active" onclick="renderGallery()">Gallery</button>
-            <button class="memes-btn">Memes</button>
+            <button class="memes-btn" onclick="renderUserMemesGallery()">Memes</button>
             <button class="about-btn">About</button>
         </nav>
-        </section>
+        <button class="btn-menu-toggle" onclick="onToggleMenu()">☰</button>
     </header>
     <main>
-        <section class="editor-container">
-            <section class="canvas-container">
-                <canvas height="450" width="450"></canvas>
-            </section>
-            <section class="control-box">
-                <input type="text" class="txt-input">
-                <section class="txt-features-btns">
-                    <button class="next-txt"></button>
-                    <button class="add-txt"></button>
-                    <button class="delete-txt"></button>
 
-                    <div class="txt-features">
-                        <button onclick="onChangeFontSize(2)">A+</button>
-                        <button onclick="onChangeFontSize(-2)">A-</button>
-                        <button onclick="onSetAilment('left')"></button>
-                        <button onclick="onSetAilment('center')"></button>
-                        <button onclick="onSetAilment('right')"></button>
-                        <input list="fonts" name="fonts-list" class="search-bar" placeholder="Enter font">
-                        <datalist id="fonts">
-                            <option value="Impact"></option>
-                            <option value="Arial"></option>
-                            <option value="Tahoma"></option>
-                            <option value="Gisha"></option>
-                        </datalist>
-                        <button onclick="onSetUnderLine()"></button>
-                        <button onclick="onSetColor()"></button>
-                    </div>
 
-                </section>
     </main>
+    <section class="choose-color-modal">
+        <h3></h3>
+        <input type="color">
+        <button onclick="onSubmitColorModal()">Done</button>
+    </section>
 
+    <script src="js/share-service.js"></script>
+    <script src="js/storage-service.js"></script>
+    <script src="js/user-memes-service.js"></script>
     <script src="js/meme-service.js"></script>
     <script src="js/editor-controller.js"></script>
     <script src="js/gallery-controller.js"></script>
+    <script src="js/user-memes-controller.js"></script>
 </body>
 
 </html>

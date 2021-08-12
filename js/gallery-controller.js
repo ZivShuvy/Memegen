@@ -22,6 +22,9 @@ function renderGallery() {
         </section>
         <section class="images-container"></section>
     </section>`
+    document.querySelector('nav button.active').classList.remove('active');
+    document.querySelector('.gallery-btn').classList.add('active');
+    document.body.classList.remove('menu-open');
     renderImages();
 }
 
@@ -29,7 +32,11 @@ function renderImages() {
     var strHTML = '';
     let imgs = getImgs();
     imgs.forEach((img, idx) => {
-        strHTML += `<img src=${img.url} onclick="renderEditor(${idx})">`
+        strHTML += `<img src=${img.url} onclick="renderEditor(${idx}, true)">`
     });
     document.querySelector('.images-container').innerHTML = strHTML;
+}
+
+function onToggleMenu() {
+    document.body.classList.toggle('menu-open');
 }

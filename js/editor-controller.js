@@ -4,8 +4,11 @@ const gTouchEvs = ['touchstart', 'touchmove', 'touchend']
 
 let gElCanvas;
 let gCtx;
+let gStartPos;
+let gIsNewMeme;
+let gMemeId = -1;
 
-function renderEditor(id) {
+function renderEditor(id, isNew) {
     document.querySelector('main').innerHTML =
         `<section class="editor-container">
             <section class="canvas-container">
@@ -19,49 +22,196 @@ function renderEditor(id) {
                     <button class="delete-txt" onclick="onRemoveLine()"></button>
                 </div>
                 <div class="txt-features">
-                <button onclick="onChangeFontSize(2)">A<span>+</span></button>
-                <button onclick="onChangeFontSize(-2)">A<span>-</span></button>
-                <button class="align-left-btn" onclick="onSetAilment('end')"></button>
-                <button class="align-center-btn" onclick="onSetAilment('center')"></button>
-                <button class="align-right-btn" onclick="onSetAilment('start')"></button>
-                <input list="fonts" name="fonts-list" class="fonts-input" placeholder="Enter font">
-                <datalist id="fonts">
-                    <option value="Impact"></option>
-                    <option value="Arial"></option>
-                    <option value="Tahoma"></option>
-                    <option value="Gisha"></option>
-                </datalist>
-                <button class="underline-btn" onclick="onSetUnderLine()">S</button>
-                <button class="set-color-btn" onclick="onSetColor()"></button>
-            </div>
-            </section>
+                    <button class="inc-size-btn" onclick="onChangeFontSize(2)">A<span>+</span></button>
+                    <button class="dec-size-btn" onclick="onChangeFontSize(-2)">A<span>-</span></button>
+                    <button class="align-left-btn" onclick="onSetAilment('end')"></button>
+                    <button class="align-center-btn" onclick="onSetAilment('center')"></button>
+                    <button class="align-right-btn" onclick="onSetAilment('start')"></button>
+                    <select name="fonts-list" class="fonts-input" onchange="onSetFont(this)">
+                        <option value="Impact">Impact</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Tahoma">Tahoma</option>
+                        <option value="Gisha">Gisha</option>
+                    </select>
+                    <button class="stroke-color-btn" onclick="onSetStrokeColor()">S</button>
+                    <button class="text-color-btn" onclick="onSetTextColor()"></button>
+                </div>
+                <div class="stickers">
+                    <img src="svg/prev-stickers.svg">
+                    <div class="stickers-container"></div>
+                    <img src="svg/next-stickers.svg">
+                </div>
+                <div class="meme-features">
+                    <button class="share-btn" onclick="onShareMeme()">Share</button>
+                    <button class="save-btn" onclick="onSaveMeme()">Save</button>
+                </div>
+             </section>
         </section>`
-
+    gMemeId = -1;
+    gIsNewMeme = isNew;
     gElCanvas = document.querySelector('canvas');
     gCtx = gElCanvas.getContext('2d');
-    clearLines();
+    clearMeme();
     setCurrImgId(id);
+    if (!isNew) {
+        gMemeId = id;
+        setMeme(JSON.parse(JSON.stringify(getMemeById(id).memeData)));
+    }
+    renderCanvas();
+    renderEditorStickers();
+}
+
+
+function onSaveMeme() {
+    renderCanvas(false);
+    const imgDataUrl = gElCanvas.toDataURL("image/jpeg");
+    addUserMeme(imgDataUrl, gMemeId);
+    let elSaveBtn = document.querySelector('.save-btn');
+    elSaveBtn.innerText = 'Done';
+    setTimeout(() => {
+        elSaveBtn.innerText = 'Save';
+        renderCanvas()
+    }, 1000);
+}
+
+function onShareMeme() {
+    renderCanvas(false);
+    uploadImg();
+}
+
+function onAddSticker(elSticker) {
+    addSticker(elSticker.src, gElCanvas.width / 2, gElCanvas.height / 2, elSticker.width, elSticker.height);
+    renderCanvas();
+}
+
+function onMove(ev) {
+    const pos = getEvPos(ev);
+    if (isDrag()) {
+        const dx = pos.x - gStartPos.x;
+        const dy = pos.y - gStartPos.y;
+        if (getSelectedType() === 'text') {
+            moveText(dx, dy);
+        } else {
+            moveSticker(dx, dy);
+        }
+        gStartPos = pos;
+        renderCanvas();
+    } else {
+        if (getHoveredLineIdx(pos) !== -1 || getHoveredStickerIdx(pos) !== -1) {
+            document.body.style.cursor = 'pointer';
+        } else {
+            document.body.style.cursor = '';
+        }
+    }
+}
+
+function onUp(ev) {
+    setTextDrag(false)
+    const pos = getEvPos(ev);
+    if (getHoveredLineIdx(pos) !== -1 || getHoveredStickerIdx(pos) !== -1) {
+        document.body.style.cursor = 'pointer';
+    } else {
+        document.body.style.cursor = '';
+    }
+}
+
+function onDown(ev) {
+    const pos = getEvPos(ev);
+    let currLineIdx = getHoveredLineIdx(pos);
+    let currStickerIdx = getHoveredStickerIdx(pos);
+    if (currLineIdx !== -1) {
+        setSelectedLineIdx(currLineIdx);
+        setSelectedType('text');
+        setTextDrag(true);
+        gStartPos = pos;
+        document.body.style.cursor = 'grabbing';
+        renderCanvas();
+    }
+    else if (currStickerIdx !== -1) {
+        setSelecetedStickerIdx(currStickerIdx);
+        setSelectedType('sticker');
+        setTextDrag(true);
+        gStartPos = pos;
+        document.body.style.cursor = 'grabbing';
+        renderCanvas();
+    }
+}
+
+function onToggleScreen() {
+    let elModal = document.querySelector('.choose-color-modal');
+    if (elModal.style.transform === 'translate(-50%, -50%)') {
+        document.querySelector('.choose-more-modal').style.transform = 'translate(-50%, -260%)';
+        setTimeout(() => elModal.style.visibility = 'hidden', 600);
+        document.body.classList.toggle('modal-open');
+    } else {
+        document.body.classList.toggle('menu-open');
+    }
+}
+
+function onSetTextColor() {
+    if (getSelectedType() === 'sticker') return;
+    onOpenColorModal('Choose text color');
+    document.querySelector('.choose-color-modal').classList.add('text');
+    document.querySelector('.choose-color-modal input').value = getMeme().lines[getMeme().selectedLineIdx].textColor;
+}
+
+function onSetStrokeColor() {
+    if (getSelectedType() === 'sticker') return;
+    onOpenColorModal('Choose stroke color');
+    document.querySelector('.choose-color-modal input').value = getMeme().lines[getMeme().selectedLineIdx].strokeColor;
+}
+
+function onOpenColorModal(txt) {
+    let elModal = document.querySelector('.choose-color-modal');
+    elModal.style.visibility = 'visible';
+    elModal.style.transform = 'translate(-50%, -50%)';
+    document.querySelector('.choose-color-modal h3').innerText = txt;
+    document.body.classList.add('modal-open');
+}
+
+function onSubmitColorModal() {
+    let color = document.querySelector('.choose-color-modal input').value;
+    let elModal = document.querySelector('.choose-color-modal');
+    if (elModal.classList.contains('text')) {
+        setTextColor(color);
+        elModal.classList.remove('text');
+    } else {
+        setStrokeColor(color);
+    }
+    elModal.style.transform = 'translate(-50%, -260%)';
+    setTimeout(() => elModal.style.visibility = 'hidden', 600);
+    document.body.classList.remove('modal-open');
+    renderCanvas();
+}
+
+function onSetFont(elInput) {
+    if (getSelectedType() === 'sticker') return;
+    setFont(elInput.value);
     renderCanvas();
 }
 
 function onSetAilment(ailment) {
+    if (getSelectedType() === 'sticker') return;
     setAilment(ailment);
     renderCanvas();
 }
 
 function onChangeFontSize(diff) {
-    changeFontSize(diff);
+    if (getSelectedType() === 'text') changeFontSize(diff);
+    else changeStickerSize(diff);
     renderCanvas();
 }
 
 function onEditTxt(elInput) {
     if (getMeme().lines.length === 0) return;
+    if (getSelectedType() === 'sticker') return;
     setLineTxt(elInput.value);
     renderCanvas();
 }
 
 function onRemoveLine() {
-    removeLine();
+    if (getSelectedType() === 'text') removeLine();
+    else removeSticker();
     renderCanvas();
 }
 
@@ -75,17 +225,27 @@ function onAddLine() {
     renderCanvas();
 }
 
-function drawText() {
+function draw(drawBox) {
     let lines = getMeme().lines;
     lines.forEach((line, idx) => {
         if (line.x === -1000 && line.y === -1000) {
             setDefualtLocation(idx);
         }
         drawLineTxt(line);
-        if (getMeme().selectedLineIdx === idx) {
+        if (getMeme().selectedLineIdx === idx && getSelectedType() === 'text' && drawBox) {
             drawLineBox(line);
         }
-    })
+    });
+
+    let stickers = getStickers();
+    stickers.forEach((sticker, idx) => {
+        if (getMeme().selectedStickerIdx === idx && getSelectedType() === 'sticker' && drawBox) {
+            drawStickerBox(sticker);
+        }
+        let stickerImg = new Image();
+        stickerImg.src = sticker.url;
+        gCtx.drawImage(stickerImg, sticker.x, sticker.y, sticker.width, sticker.height);
+    });
 }
 
 function setDefualtLocation(idx) {
@@ -99,10 +259,15 @@ function setDefualtLocation(idx) {
 }
 
 function drawLineTxt(line) {
-    gCtx.lineWidth = 2;
+    if (line.size > 25) {
+        gCtx.lineWidth = 2;
+    } else {
+        gCtx.lineWidth = 1;
+    }
     gCtx.font = `${line.size}px ${line.font}`;
     gCtx.textAlign = line.align;
-    gCtx.fillStyle = line.color;
+    gCtx.fillStyle = line.textColor;
+    gCtx.strokeStyle = line.strokeColor;
     gCtx.fillText(line.txt, line.x, line.y);
     gCtx.strokeText(line.txt, line.x, line.y);
 }
@@ -110,39 +275,64 @@ function drawLineTxt(line) {
 
 function drawLineBox(line) {
     gCtx.beginPath()
-    gCtx.strokeStyle = '#22252c'
-    if (line.align == 'start') {
-        gCtx.rect(line.x - 10, line.y + 10, gCtx.measureText(line.txt).width + 20, -(line.size + 10));
-    } else if (line.align === 'end') {
-        gCtx.rect((gElCanvas.width / 2) - gCtx.measureText(line.txt).width - 10 , line.y + 10, gCtx.measureText(line.txt).width + 20, -(line.size + 10));
-    } else {
-        gCtx.rect((gElCanvas.width / 2) - (gCtx.measureText(line.txt).width / 2) - 10, line.y + 10, gCtx.measureText(line.txt).width + 20, -(line.size + 10));
-    }
-    gCtx.stroke()
+    gCtx.lineWidth = 2;
+    gCtx.strokeStyle = '#00000099'
+    gCtx.fillStyle = '#ffffff42'
+    const { x, y, width, height } = calcTextBox(line);
+    gCtx.rect(x, y, width, height);
+    gCtx.fill();
+    gCtx.stroke();
     gCtx.closePath();
 }
 
+function drawStickerBox(sticker) {
+    gCtx.beginPath()
+    gCtx.lineWidth = 2;
+    gCtx.strokeStyle = '#00000099'
+    gCtx.fillStyle = '#ffffff42'
+    const { x, y, width, height } = calcStickerBox(sticker);
+    gCtx.rect(x, y, width, height);
+    gCtx.fill();
+    gCtx.stroke();
+    gCtx.closePath();
+}
 
-function renderCanvas() {
+function renderEditorStickers() {
+    let strHTML = '';
+    let size = 4;
+    if (window.innerWidth < 700) size = 2;
+    for (let i = 0; i < size; i++) {
+        strHTML += `<img onclick="onAddSticker(this)" src="img/stickers/sticker${i + 1}.png">`
+    }
+    document.querySelector('.stickers-container').innerHTML = strHTML;
+}
+
+
+function renderCanvas(drawBox = true) {
     let currImg = getCurrImg();
     let img = new Image();
     img.src = currImg.url;
     img.onload = function () {
         resizeCanvas(img);
-        renderImg(img);
-        drawText();
+        renderBgImg(img);
+        draw(drawBox);
         addListeners();
     };
     if (getMeme().lines.length) {
         document.querySelector('.edit-txt-input').value = getMeme().lines[getMeme().selectedLineIdx].txt;
+        document.querySelector('.fonts-input').value = getMeme().lines[getMeme().selectedLineIdx].font;
     }
 }
 
-function renderImg(img) {
+function renderBgImg(img) {
     gCtx.drawImage(img, 0, 0, gElCanvas.width, gElCanvas.height);
 }
 
 function resizeCanvas(img) {
+    if (window.innerWidth < 700) {
+        img.width = window.innerWidth - 100;
+        img.height = window.innerWidth - 100;
+    }
     const elContainer = document.querySelector('.canvas-container');
     elContainer.style.width = img.width + 'px';
     elContainer.style.height = img.height + 'px';
@@ -151,24 +341,24 @@ function resizeCanvas(img) {
 }
 
 function addTouchListeners() {
-    // gElCanvas.addEventListener('touchstart', startDraw)
-    // gElCanvas.addEventListener('touchend', stopDraw)
-    // gElCanvas.addEventListener('touchmove', draw)
+    gElCanvas.addEventListener('touchmove', onMove)
+    gElCanvas.addEventListener('touchstart', onDown)
+    gElCanvas.addEventListener('touchend', onUp)
 }
 
 function addMouseListeners() {
-    // gElCanvas.addEventListener('mousedown', startDraw);
-    // gElCanvas.addEventListener('mouseup', stopDraw);
-    // gElCanvas.addEventListener('mousemove', draw);
+    gElCanvas.addEventListener('mousemove', onMove)
+    gElCanvas.addEventListener('mousedown', onDown)
+    gElCanvas.addEventListener('mouseup', onUp)
 }
 
 function addListeners() {
     addMouseListeners();
     addTouchListeners();
-    //For testing:
-    // window.addEventListener('resize', () => {
-    //     resizeCanvas();
-    // });
+}
+
+function getCtx() {
+    return gCtx;
 }
 
 function getEvPos(ev) {

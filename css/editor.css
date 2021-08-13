@@ -52,6 +52,9 @@ canvas {
     border-radius: 10px;
     width: 57px;
     height: 53px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .next-txt {
@@ -59,26 +62,14 @@ canvas {
     background-image: linear-gradient(-38deg, #66c4dc 0%, #40b1ce 50%, #0c98bb 100%);
 }
 
-.next-txt::before {
-    content: url(../img/arrows.png);
-}
-
 .add-txt {
     box-shadow: 1px 5px 0 #015d33, inset 0 5px 0 #5dce71;
     background-image: linear-gradient(-38deg, #42eb5c 0%, #37b34a 100%);
 }
 
-.add-txt::before {
-    content: url(../img/plus.png);
-}
-
 .delete-txt {
     box-shadow: 1px 5px 0 #8c0606, inset 0 5px 0 #f16e5b;
     background-image: linear-gradient(-38deg, #cf1d37 0%, #cf1d37 1%, #f05036 100%);
-}
-
-.delete-txt::before {
-    content: url(../img/delete.png);
 }
 
 /* TEXT FEATURES */
@@ -101,6 +92,9 @@ canvas {
     border-radius: 10px;
     font-family: Poppins-semibold;
     font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .txt-features>.fonts-input> :nth-child(1) {
@@ -119,22 +113,6 @@ canvas {
     font-family: 'Gisha';
 }
 
-.txt-features button span {
-    font-size: 1.2rem;
-}
-
-.align-left-btn::before {
-    content: url(../svg/align-left.svg);
-}
-
-.align-center-btn::before {
-    content: url(../svg/align-center.svg);
-}
-
-.align-right-btn::before {
-    content: url(../svg/align-right.svg);
-}
-
 .fonts-input {
     width: 236px;
     font-size: 1.6875rem;
@@ -146,18 +124,6 @@ canvas {
 
 .fonts-input:focus-visible {
     outline: none;
-}
-
-.stroke-color-btn {
-    text-decoration: underline;
-}
-
-.align-right-btn::before {
-    content: url(../svg/align-right.svg);
-}
-
-.text-color-btn::before {
-    content: url(../svg/canvas.svg);
 }
 
 /* STICKERS */
@@ -222,18 +188,19 @@ canvas {
     .txt-features {
         grid-template-columns: repeat(5, 40px);
         grid-template-rows: repeat(2, 40px);
-        gap: 10px;
+        gap: 15px;
+        padding: 15px;
+        padding-top: 10px;
     }
     .txt-features button, .fonts-input {
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         font-size: 1rem
     }
     .fonts-input {
         grid-column: 1/4;
-        width: 140px;
+        width: 155px;
     }
-   
     .stickers {
         width: 110%;
     }

@@ -113,7 +113,7 @@
     main {
         margin: 10px;
     }
-    .gallery-container {
+    .gallery-container, .user-gallery-container {
         height: fit-content;
     }
     .images-container, .user-memes-container {

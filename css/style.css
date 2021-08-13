@@ -190,11 +190,21 @@ body.menu-open .search-bar {
         height: 55px;
         background-color: #fefefe;
         border-radius: 100%;
-        color: #28b47f;
         font-weight: bold;
         font-size: 2rem;
         margin-inline-end: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
 
+    }
+    .btn-menu-toggle div{
+        width: 30px;
+        height: 4px;
+        background-color: #28b47f;
+        border-radius: 5px;
     }
     header nav {
         position: fixed;

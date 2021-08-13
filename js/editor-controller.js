@@ -15,26 +15,26 @@ function renderEditor(id, isNew) {
                 <canvas height="450" width="450"></canvas>
              </section>
             <section class="control-box">
-                <input type="text" class="edit-txt-input" oninput="onEditTxt(this)">
+                <input type="text" class="edit-txt-input" oninput="onEditTxt(this)" placeholder="Enter text here">
                  <div class="line-features-btns">
-                    <button class="next-txt" onclick="onNextLine()"></button>
-                    <button class="add-txt" onclick="onAddLine()"></button>
-                    <button class="delete-txt" onclick="onRemoveLine()"></button>
+                    <button class="next-txt" onclick="onNextLine()"><img src="img/arrows.png"></button>
+                    <button class="add-txt" onclick="onAddLine()"><img src="img/plus.png"></button>
+                    <button class="delete-txt" onclick="onRemoveLine()"><img src="img/delete.png"></button>
                 </div>
                 <div class="txt-features">
-                    <button class="inc-size-btn" onclick="onChangeFontSize(2)">A<span>+</span></button>
-                    <button class="dec-size-btn" onclick="onChangeFontSize(-2)">A<span>-</span></button>
-                    <button class="align-left-btn" onclick="onSetAilment('end')"></button>
-                    <button class="align-center-btn" onclick="onSetAilment('center')"></button>
-                    <button class="align-right-btn" onclick="onSetAilment('start')"></button>
+                    <button class="inc-size-btn" onclick="onChangeFontSize(2)"><img src="img/features/A+.png"></button>
+                    <button class="dec-size-btn" onclick="onChangeFontSize(-2)"><img src="img/features/A-.png"></button>
+                    <button class="align-left-btn" onclick="onSetAilment('end')"><img src="img/features/align-left.png"></button>
+                    <button class="align-center-btn" onclick="onSetAilment('center')"><img src="img/features/align-center.png"></button>
+                    <button class="align-right-btn" onclick="onSetAilment('start')"><img src="img/features/align-right.png"></button>
                     <select name="fonts-list" class="fonts-input" onchange="onSetFont(this)">
                         <option value="Impact">Impact</option>
                         <option value="Arial">Arial</option>
                         <option value="Tahoma">Tahoma</option>
                         <option value="Gisha">Gisha</option>
                     </select>
-                    <button class="stroke-color-btn" onclick="onSetStrokeColor()">S</button>
-                    <button class="text-color-btn" onclick="onSetTextColor()"></button>
+                    <button class="stroke-color-btn" onclick="onSetStrokeColor()"><img src="img/features/stroke.png"></button>
+                    <button class="text-color-btn" onclick="onSetTextColor()"><img src="img/features/canvas.png"></button>
                 </div>
                 <div class="stickers">
                     <img src="svg/prev-stickers.svg">
@@ -319,8 +319,14 @@ function renderCanvas(drawBox = true) {
         addListeners();
     };
     if (getMeme().lines.length) {
-        document.querySelector('.edit-txt-input').value = getMeme().lines[getMeme().selectedLineIdx].txt;
-        document.querySelector('.fonts-input').value = getMeme().lines[getMeme().selectedLineIdx].font;
+        const currLine = getMeme().lines[getMeme().selectedLineIdx];
+        if(currLine.txt !== 'Enter text here' && getMeme().selectedType === 'text') {
+            document.querySelector('.edit-txt-input').value = currLine.txt;
+            document.querySelector('.fonts-input').value = currLine.font;
+        } else {
+            document.querySelector('.edit-txt-input').value = '';
+            document.querySelector('.fonts-input').value = 'Impact';
+        }
     }
 }
 

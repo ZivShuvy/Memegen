@@ -1,10 +1,14 @@
 'use strict'
-let gKeywords = { 'happy': 12, 'funny puk': 1 }
-let gImgsIdx = 0;
+const IMGS_KEY = 'imgDB';
+const IMGS_IDX_KEY = 'nextImgIdx';
+let gKeywords = {
+    'all': 10, 'funny': 4, 'politics': 1, 'animal': 3, 'happy': 6, 'comic': 2,
+    'smile': 1, 'baby': 1, 'sleep': 1, 'tv': 2, 'surprise': 1, 'cunning': 1, 'men': 5, 'sport': 3
+}
+let gImgsIdx;
 let gLineId = 0;
-let gImgs = _createImgs();
+let gImgs;
 let gIsDrag = false;
-
 
 let gMeme = {
     selectedImgId: 0,
@@ -15,6 +19,48 @@ let gMeme = {
     stickers: []
 }
 
+const stickersCount = 4;
+let PAGE_SIZE = 4;
+let gPageIdx = 0;
+
+
+init();
+
+function init() {
+    _createImgsIdx();
+    _createImgs();
+    if(window.innerWidth < 700) {
+        PAGE_SIZE = 2;
+    }
+}
+
+
+function getPageSize() {
+    return PAGE_SIZE;
+}
+
+function setNextPage(diff){
+    if (gPageIdx + diff >= getNumOfPages() || gPageIdx + diff < 0) return
+    gPageIdx += diff
+}
+
+function getNumOfPages() {
+    return Math.ceil(stickersCount / PAGE_SIZE);
+}
+
+
+function getCirlclePos(currSticker) {
+    return { x: currSticker.x + currSticker.width, y: currSticker.y + currSticker.height }
+}
+
+function isCircleClicked(clickedPos) {
+    if(gMeme.stickers[gMeme.selectedStickerIdx]) {
+        let { x, y } = getCirlclePos(gMeme.stickers[gMeme.selectedStickerIdx]);
+        x+=10;
+        const distance = Math.sqrt((x - clickedPos.x) ** 2 + (y - clickedPos.y) ** 2)
+        return distance <= 15;
+    }
+}
 
 function getHoveredStickerIdx(clickedPos) {
     let stickerIdx = -1;
@@ -233,6 +279,18 @@ function setCurrImgId(id) {
     gMeme.selectedImgId = id;
 }
 
+function getKeyWords() {
+    return gKeywords;
+}
+
+function addCustomImg(img) {
+    const customImg = { id: gImgsIdx++, url: img.src, keywords: [''] };
+    gImgs.push(customImg);
+    _saveImgsToStorage();
+    _saveImgsIdxToStorage();
+    renderImgs();
+}
+
 function getImgs() {
     return gImgs;
 }
@@ -245,10 +303,50 @@ function _createImg(keywords) {
     }
 }
 
-function _createImgs() {
-    let imgs = [];
-    for (let i = 0; i < 18; i++) {
-        imgs.push(_createImg(['Happy']));
+function _createImgsIdx() {
+    gImgsIdx = loadFromStorage(IMGS_IDX_KEY);
+    if (!gImgsIdx) {
+        gImgsIdx = 0;
+        _saveImgsIdxToStorage();
     }
-    return imgs;
 }
+
+function _createImgs() {
+    gImgs = loadFromStorage(IMGS_KEY);
+    if (!gImgs || !gImgs.length) {
+        gImgs = [];
+        gImgs.push(_createImg(['funny', 'politics']));
+        gImgs.push(_createImg(['animal', 'happy']));
+        gImgs.push(_createImg(['animal', 'comic', 'smile', 'baby']));
+        gImgs.push(_createImg(['animal', 'sleep', 'funny']));
+        gImgs.push(_createImg(['baby', 'happy']));
+        gImgs.push(_createImg(['tv']));
+        gImgs.push(_createImg(['baby', 'surprise', 'funny']));
+        gImgs.push(_createImg(['men', 'happy']));
+        gImgs.push(_createImg(['baby', 'cunning']));
+        gImgs.push(_createImg(['happy', 'funny', 'politics']));
+        gImgs.push(_createImg(['sport', 'men']));
+        gImgs.push(_createImg(['cunning', 'men', 'surprise']));
+        gImgs.push(_createImg(['tv', 'happy', 'men']));
+        gImgs.push(_createImg(['tv', 'surprise']));
+        gImgs.push(_createImg(['men']));
+        gImgs.push(_createImg(['men', 'happy', 'funny', 'comic']));
+        gImgs.push(_createImg(['politics']));
+        gImgs.push(_createImg(['tv']));
+        _saveImgsToStorage();
+        _saveImgsIdxToStorage();
+    }
+}
+
+function _saveImgsIdxToStorage() {
+    saveToStorage(IMGS_IDX_KEY, gImgsIdx);
+}
+
+function _saveImgsToStorage() {
+    saveToStorage(IMGS_KEY, gImgs);
+}
+
+
+
+
+

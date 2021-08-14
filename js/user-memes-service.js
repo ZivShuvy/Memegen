@@ -12,6 +12,16 @@ if (!gNextMemeIdx) {
 }
 
 
+function removeMeme(memeId) {
+    const currMemeIdx = gUserMemes.findIndex(meme => memeId === meme.id);
+    gUserMemes.splice(currMemeIdx, 1);
+    _saveMemesToStorage();
+    if(gUserMemes.length === 0) {
+        gNextMemeIdx = 0;
+        _saveIdToStorage();
+    }
+}
+
 function addUserMeme(dataUrl, memeId) {
     if (memeId === -1) {
         gUserMemes.push({

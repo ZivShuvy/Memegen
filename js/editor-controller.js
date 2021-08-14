@@ -11,6 +11,11 @@ let gMemeId = -1;
 function renderEditor(id, isNew) {
     document.querySelector('main').innerHTML =
         `<section class="editor-container">
+            <div class="save-msg">
+                <span>Your meme has been successfully saved,</span>
+                <span class="open-user-memes" onclick="renderUserMemesGallery()">check it out!</span>
+            </div>
+            <section class="main-container">
             <section class="canvas-container">
                 <canvas height="450" width="450"></canvas>
              </section>
@@ -33,18 +38,29 @@ function renderEditor(id, isNew) {
                         <option value="Tahoma">Tahoma</option>
                         <option value="Gisha">Gisha</option>
                     </select>
-                    <button class="stroke-color-btn" onclick="onSetStrokeColor()"><img src="img/features/stroke.png"></button>
-                    <button class="text-color-btn" onclick="onSetTextColor()"><img src="img/features/canvas.png"></button>
+                    <div class="change-color-input">
+                        <input type="color" class="stroke-color-input" oninput="onSetStrokeColor(this)">
+                        <div class="color-img-container">
+                            <img src="img/features/stroke.png">
+                        </div>
+                    </div>
+                    <div class="change-color-input">
+                        <input type="color" class="text-color-input" oninput="onSetTextColor(this)">
+                        <div class="color-img-container">
+                            <img src="img/features/canvas.png">
+                         </div>
+                    </div>
                 </div>
                 <div class="stickers">
-                    <img src="svg/prev-stickers.svg">
+                    <img src="svg/prev-stickers.svg" onclick="onNextPage(-1)">
                     <div class="stickers-container"></div>
-                    <img src="svg/next-stickers.svg">
+                    <img src="svg/next-stickers.svg" onclick="onNextPage(1)">
                 </div>
                 <div class="meme-features">
-                    <button class="share-btn" onclick="onShareMeme()">Share</button>
-                    <button class="save-btn" onclick="onSaveMeme()">Save</button>
+                    <button class="share-btn" onclick="onShareMeme()"><img src="img/share.png"><span>Share</span></button>
+                    <button class="save-btn" onclick="onSaveMeme()"><i class="fa fa-floppy-o" aria-hidden="true"></i><span>Save</span></button>
                 </div>
+                </section>
              </section>
         </section>`
     gMemeId = -1;
@@ -57,32 +73,45 @@ function renderEditor(id, isNew) {
         gMemeId = id;
         setMeme(JSON.parse(JSON.stringify(getMemeById(id).memeData)));
     }
-    renderCanvas();
     renderEditorStickers();
+    renderCanvas();
 }
 
 
+function onNextPage(diff) {
+    setNextPage(diff);
+    renderEditorStickers();
+}
+
 function onSaveMeme() {
     renderCanvas(false);
-    const imgDataUrl = gElCanvas.toDataURL("image/jpeg");
-    addUserMeme(imgDataUrl, gMemeId);
-    let elSaveBtn = document.querySelector('.save-btn');
-    elSaveBtn.innerText = 'Done';
     setTimeout(() => {
-        elSaveBtn.innerText = 'Save';
-        renderCanvas()
+        document.querySelector('.save-msg').style.display = 'flex';
+        const imgDataUrl = gElCanvas.toDataURL("image/jpeg");
+        addUserMeme(imgDataUrl, gMemeId);
+        renderCanvas();
     }, 1000);
+    setTimeout(() => {
+        const elMsg = document.querySelector('.save-msg');
+        if (elMsg) {
+            elMsg.style.display = 'none';
+        }
+    }, 7000)
 }
 
 function onShareMeme() {
     renderCanvas(false);
-    uploadImg();
+    setTimeout(() => {
+        uploadImg();
+    }, 1000);
 }
 
 function onAddSticker(elSticker) {
     addSticker(elSticker.src, gElCanvas.width / 2, gElCanvas.height / 2, elSticker.width, elSticker.height);
     renderCanvas();
 }
+
+//MOUSE AND TOUCH EVENTS
 
 function onMove(ev) {
     const pos = getEvPos(ev);
@@ -91,13 +120,21 @@ function onMove(ev) {
         const dy = pos.y - gStartPos.y;
         if (getSelectedType() === 'text') {
             moveText(dx, dy);
-        } else {
+        } else if (getSelectedType() === 'sticker') {
             moveSticker(dx, dy);
+        } else {
+            if (dx > 0 || dy > 0) {
+                changeStickerSize(2);
+            } else {
+                changeStickerSize(-2);
+            }
+            renderCanvas();
         }
+
         gStartPos = pos;
         renderCanvas();
     } else {
-        if (getHoveredLineIdx(pos) !== -1 || getHoveredStickerIdx(pos) !== -1) {
+        if (getHoveredLineIdx(pos) !== -1 || getHoveredStickerIdx(pos) !== -1 || isCircleClicked(pos)) {
             document.body.style.cursor = 'pointer';
         } else {
             document.body.style.cursor = '';
@@ -108,7 +145,7 @@ function onMove(ev) {
 function onUp(ev) {
     setTextDrag(false)
     const pos = getEvPos(ev);
-    if (getHoveredLineIdx(pos) !== -1 || getHoveredStickerIdx(pos) !== -1) {
+    if (getHoveredLineIdx(pos) !== -1 || getHoveredStickerIdx(pos) !== -1 || isCircleClicked(pos)) {
         document.body.style.cursor = 'pointer';
     } else {
         document.body.style.cursor = '';
@@ -135,54 +172,33 @@ function onDown(ev) {
         document.body.style.cursor = 'grabbing';
         renderCanvas();
     }
-}
-
-function onToggleScreen() {
-    let elModal = document.querySelector('.choose-color-modal');
-    if (elModal.style.transform === 'translate(-50%, -50%)') {
-        document.querySelector('.choose-more-modal').style.transform = 'translate(-50%, -260%)';
-        setTimeout(() => elModal.style.visibility = 'hidden', 600);
-        document.body.classList.toggle('modal-open');
-    } else {
-        document.body.classList.toggle('menu-open');
+    if (getSelectedType() === 'sticker' || getSelectedType() === 'circle') {
+        if (isCircleClicked(pos)) {
+            document.body.style.cursor = 'grabbing';
+            setSelectedType('circle');
+            setTextDrag(true);
+            gStartPos = pos;
+        };
     }
 }
 
-function onSetTextColor() {
+//MOUSE AND TOUCH EVENTS
+
+
+// FEATURES
+
+function onSetTextColor(elInput) {
     if (getSelectedType() === 'sticker') return;
-    onOpenColorModal('Choose text color');
-    document.querySelector('.choose-color-modal').classList.add('text');
-    document.querySelector('.choose-color-modal input').value = getMeme().lines[getMeme().selectedLineIdx].textColor;
-}
-
-function onSetStrokeColor() {
-    if (getSelectedType() === 'sticker') return;
-    onOpenColorModal('Choose stroke color');
-    document.querySelector('.choose-color-modal input').value = getMeme().lines[getMeme().selectedLineIdx].strokeColor;
-}
-
-function onOpenColorModal(txt) {
-    let elModal = document.querySelector('.choose-color-modal');
-    elModal.style.visibility = 'visible';
-    elModal.style.transform = 'translate(-50%, -50%)';
-    document.querySelector('.choose-color-modal h3').innerText = txt;
-    document.body.classList.add('modal-open');
-}
-
-function onSubmitColorModal() {
-    let color = document.querySelector('.choose-color-modal input').value;
-    let elModal = document.querySelector('.choose-color-modal');
-    if (elModal.classList.contains('text')) {
-        setTextColor(color);
-        elModal.classList.remove('text');
-    } else {
-        setStrokeColor(color);
-    }
-    elModal.style.transform = 'translate(-50%, -260%)';
-    setTimeout(() => elModal.style.visibility = 'hidden', 600);
-    document.body.classList.remove('modal-open');
+    setTextColor(elInput.value);
     renderCanvas();
 }
+
+function onSetStrokeColor(elInput) {
+    if (getSelectedType() === 'sticker') return;
+    setStrokeColor(elInput.value);
+    renderCanvas();
+}
+
 
 function onSetFont(elInput) {
     if (getSelectedType() === 'sticker') return;
@@ -225,6 +241,11 @@ function onAddLine() {
     renderCanvas();
 }
 
+
+//FEATURES
+
+//DRAW
+
 function draw(drawBox) {
     let lines = getMeme().lines;
     lines.forEach((line, idx) => {
@@ -239,12 +260,19 @@ function draw(drawBox) {
 
     let stickers = getStickers();
     stickers.forEach((sticker, idx) => {
-        if (getMeme().selectedStickerIdx === idx && getSelectedType() === 'sticker' && drawBox) {
+        if (getMeme().selectedStickerIdx === idx && (getSelectedType() === 'sticker' || getSelectedType() === 'circle') && drawBox) {
             drawStickerBox(sticker);
         }
         let stickerImg = new Image();
         stickerImg.src = sticker.url;
-        gCtx.drawImage(stickerImg, sticker.x, sticker.y, sticker.width, sticker.height);
+
+        if (stickerImg.complete && stickerImg.naturalHeight !== 0) {
+            gCtx.drawImage(stickerImg, sticker.x, sticker.y, sticker.width, sticker.height);
+        } else {
+            stickerImg.onload = function () {
+                gCtx.drawImage(stickerImg, sticker.x, sticker.y, sticker.width, sticker.height);
+            }
+        }
     });
 }
 
@@ -295,13 +323,30 @@ function drawStickerBox(sticker) {
     gCtx.fill();
     gCtx.stroke();
     gCtx.closePath();
+    drawCircle(x + width, y + height);
 }
+
+function drawCircle(x, y) {
+    gCtx.beginPath();
+    gCtx.lineWidth = 1;
+    gCtx.arc(x, y, 10, 0, 2 * Math.PI);
+    gCtx.fillStyle = '#fe6e20';
+    gCtx.fill();
+    gCtx.strokeStyle = '#fff';
+    gCtx.stroke();
+    gCtx.closePath();
+
+}
+
+//DRAW
+
+
+// RENDERS
 
 function renderEditorStickers() {
     let strHTML = '';
-    let size = 4;
-    if (window.innerWidth < 700) size = 2;
-    for (let i = 0; i < size; i++) {
+    let size = getPageSize();
+    for (let i = gPageIdx * PAGE_SIZE; i < size* (gPageIdx+1); i++) {
         strHTML += `<img onclick="onAddSticker(this)" src="img/stickers/sticker${i + 1}.png">`
     }
     document.querySelector('.stickers-container').innerHTML = strHTML;
@@ -320,13 +365,15 @@ function renderCanvas(drawBox = true) {
     };
     if (getMeme().lines.length) {
         const currLine = getMeme().lines[getMeme().selectedLineIdx];
-        if(currLine.txt !== 'Enter text here' && getMeme().selectedType === 'text') {
+        if (currLine.txt !== 'Enter text here' && getMeme().selectedType === 'text') {
             document.querySelector('.edit-txt-input').value = currLine.txt;
-            document.querySelector('.fonts-input').value = currLine.font;
+
         } else {
             document.querySelector('.edit-txt-input').value = '';
-            document.querySelector('.fonts-input').value = 'Impact';
         }
+        document.querySelector('.stroke-color-input').value = currLine.strokeColor;
+        document.querySelector('.text-color-input').value = currLine.textColor;
+        document.querySelector('.fonts-input').value = currLine.font;
     }
 }
 
@@ -335,9 +382,13 @@ function renderBgImg(img) {
 }
 
 function resizeCanvas(img) {
+    let currWidth = img.width;
     if (window.innerWidth < 700) {
         img.width = window.innerWidth - 100;
-        img.height = window.innerWidth - 100;
+        img.height = img.height * (img.width / currWidth)
+    } else {
+        img.width = 500;
+        img.height = img.height * (500 / currWidth)
     }
     const elContainer = document.querySelector('.canvas-container');
     elContainer.style.width = img.width + 'px';
@@ -345,6 +396,9 @@ function resizeCanvas(img) {
     gElCanvas.width = elContainer.offsetWidth;
     gElCanvas.height = elContainer.offsetHeight;
 }
+
+// RENDERS
+
 
 function addTouchListeners() {
     gElCanvas.addEventListener('touchmove', onMove)

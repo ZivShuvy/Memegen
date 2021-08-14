@@ -19,7 +19,7 @@ let gMeme = {
     stickers: []
 }
 
-const stickersCount = 4;
+const stickersCount = 8;
 let PAGE_SIZE = 4;
 let gPageIdx = 0;
 

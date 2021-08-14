@@ -154,6 +154,7 @@ function onUp(ev) {
 
 function onDown(ev) {
     const pos = getEvPos(ev);
+    console.log(pos);
     let currLineIdx = getHoveredLineIdx(pos);
     let currStickerIdx = getHoveredStickerIdx(pos);
     if (currLineIdx !== -1) {
@@ -347,7 +348,7 @@ function renderEditorStickers() {
     let strHTML = '';
     let size = getPageSize();
     for (let i = gPageIdx * PAGE_SIZE; i < size* (gPageIdx+1); i++) {
-        strHTML += `<img onclick="onAddSticker(this)" src="img/stickers/sticker${i + 1}.png">`
+        strHTML += `<img class="sticker" onclick="onAddSticker(this)" src="img/stickers/sticker${i + 1}.png">`
     }
     document.querySelector('.stickers-container').innerHTML = strHTML;
 }
